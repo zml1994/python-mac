@@ -1,0 +1,69 @@
+[
+        {
+            "itemId": 22916102,
+            "itemName": "金隆兴 意见箱 F036",
+            "categoryId": 5298,
+            "categoryName": "意见箱/抽奖箱/信件箱",
+            "categoryIds": [
+                4402,
+                4443,
+                5298
+            ],
+            "categoryNames": [
+                "文化用品",
+                "收纳/陈列用品",
+                "意见箱/抽奖箱/信件箱"
+            ],
+            "layer": 11,
+            "layerComment": "网上超市",
+            "status": 0,
+            "statusComment": "已入库",
+            "saleQuantity": 3,
+            "source": 5,
+            "marketPrice": null,
+            "agreementPrice": null,
+            "discountRate": null,
+            "supplierCode": null,
+            "supplierName": "义乌市鑫榜办公用品商行",
+            "marketLowPrice": 70,
+            "marketHighPrice": 70,
+            "agreementLowPrice": 65,
+            "agreementHighPrice": 65,
+            "discountLowRate": 0.0714,
+            "discountHighRate": 0.0714,
+            "mainImage": "https://itemcdn.zcycdn.com/1000563521/720d6ff3-9733-4ee9-b7e9-98a9ebbfaf4e.jpg",
+            "stockQuantity": 97,
+            "agChannelGoodsRelProtocols": [
+                {
+                    "protocolId": 33683,
+                    "protocolName": "浙江省网上超市全省一张网-义乌市鑫榜办公用品商行"
+                }
+            ],
+            "creatorId": null,
+            "creator": null,
+            "itemSource": null,
+            "createdAt": 1545965746000,
+            "importFlag": null,
+            "editable": true,
+            "id": null,
+            "auditStatus": null,
+            "auditStatusComment": null,
+            "gmtModified": null,
+            "expandCode": null,
+            "expandComment": null,
+            "salesPrice": null,
+            "purchaseCatId": null,
+            "purchaseCatName": null,
+            "specification": null,
+            "brandId": null,
+            "brandName": null,
+            "sourceComment": null,
+            "desc": null,
+            "unit": null,
+            "priceLabel": 1,
+            "itemPriceUnit": "元",
+            "itemPriceDesc": null,
+            "stockValue": "97",
+            "spuId": null
+        }
+    ]

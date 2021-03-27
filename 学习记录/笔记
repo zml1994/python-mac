@@ -1,0 +1,22 @@
+Python编程-从入门到实践
+
+第七章 用户输入input和while循环
+
+1、input获取的是字符串
+2、imput后面可添加？、空格更便于阅读
+3、提示字符串过长，可先赋予成变量。
+
+print笔记
+# 方法一：%
+a = "hello"
+b = "world!"
+print("你好，%s %s" % (a,b))
+
+# 方法二：f
+a = "hello"
+b = "world!"
+print(f"你好，{a} {b})
+
+print参数
+print("打印后，默认为换行，不想换行用end", end="")
+\n 换行  \t tab缩进符

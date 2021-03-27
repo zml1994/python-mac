@@ -1,0 +1,18 @@
+# message = input("告诉我些东西，我将存为变量：")
+# print(message)
+
+# name = input("告诉我些东西，我将存为变量：")
+# print(f"\nHello,{name}!")
+
+list1 = [1, 2, 3, 4, 5]
+list2 = [100000, 110000, 120000, 130000, 140000]
+
+
+def kk(listt):
+    for i in range(len(listt)):
+        print(listt[i], end="\t")
+    print()
+
+
+kk(list1)
+kk(list2)

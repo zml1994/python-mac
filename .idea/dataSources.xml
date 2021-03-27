@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="movie.db" uuid="e9ac00f1-6f4d-4906-941e-e56856915df8">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/movie.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="hzsmz" uuid="0220e6ff-9e8d-4cc9-9326-42b653c690e1">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <remarks>杭州实名制</remarks>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/杭州实名制/hzsmz.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="test.db" uuid="3a3a1c09-3d1a-4238-ada6-d8f05705df8e">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/test.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="xssmz" uuid="4d603227-d891-44bb-b0b1-73587f1d9cad">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/萧山实名制/xssmz.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="test.db [2]" uuid="9f64a0a3-71d0-4e04-83a7-d9b03b3c7843">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/杭州实名制/test.db</jdbc-url>
+    </data-source>
+  </component>
+</project>
