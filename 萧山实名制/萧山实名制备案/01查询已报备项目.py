@@ -13,10 +13,11 @@ user = 'zml'
 pw = 'Aa123456'
 db_name = 'xssmz'
 TableName_hzbb = '`hz-xs-ybb-project`'
+# TableName_hzbb = '`test3`'
 TableName_xsconfigList = '`hz-xs-configList`'
 
 # 请求基础配置
-token = 'b9deb2a9df4147db8f0f6b50ef037c1b'
+token = '73b9c41a3a694221bb44bab46f7dfe1e'
 headers = {
     'Content-Type': 'application/json; charset=utf-8',
     'x-access-token': token}
@@ -32,8 +33,23 @@ govOrgIds = [14]  # 监管机构，14：萧山区
 def main():
     xsbb()
     xspz()
+    results_tuple = caxun()
+    chanshi_addConfig(results_tuple)
+
+# 根据数据库查询结果，尝试配置
+def chanshi_addConfig(results_tuple):
+    print(f'4、共有{len(results_tuple)}个项目已报备但未对接!!')
+    print(f'根据项目名称，尝试配置！\n')
+    for i in results_tuple:
+        projectName = i[0]
+        appId = i[1]
+        secretKey = i[2]
+        print(f'    正在尝试配置项目{projectName}，该项目的添加时间为：{i[3]}')
+        addConfig(projectName, appId, secretKey)
 
 
+
+# 查询萧山配置，并写入数据
 def xspz():
     print('1、正在发起循环请求数据')
     list_all = askUrl_configList()
@@ -42,19 +58,20 @@ def xspz():
     # 写入数据
     r = InsertData(TableName_xsconfigList, list_all)
 
-    print(f'3、数据写入完毕！')
+    print(f'3、数据写入完毕！\n')
 
 def xsbb():
     # 请求所有数据
     print('1、正在发起循环请求数据')
     list_all = xunhuan(pageNo_s)
+    print(list_all)
     # 对所有数据，进行循环写入
     print(f'2、请求完毕！总共{len(list_all)}条数据，正在写入数据到数据库')
     r = InsertData(TableName_hzbb, list_all)
     print(f'3、数据写入完毕！\n')
 
 
-
+# 请求萧山推送杭州的配置列表
 def askUrl_configList():
     url = 'http://47.110.228.86:8081/api/push/config/1/10000/configList?platformName=%E6%9D%AD%E5%B7%9E%E5%B9%B3%E5%8F%B0'
     try:
@@ -70,6 +87,30 @@ def askUrl_configList():
     print(f'3、请求结果如下：\n{data}')
     return r.json()['data']['list']
 
+# 添加项目推送配置（萧山至杭州）
+def addConfig(projectName, appId, secretKey):
+    url = f'http://47.110.228.86:8081/api/push/config/addConfig'
+    data = {
+        'platformName': '杭州平台',
+        'platformKey': 'hangzhou',
+        'pushUrl': 'http://115.233.209.232:9089/open.api',
+        'pushAppId': appId,
+        'pushProjectCode': appId,
+        'pushSecurityKey': secretKey,
+        'myProjectName': projectName}
+    # print(data)
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'x-access-token': token}
+    try:
+        r = requests.post(url, data=data, headers=headers)
+    except HTTPError as e:
+        print(f'        请求出错,原因是{e.reason}')
+    r.encoding = 'utf-8'
+    results = r.json()['message']
+    print(f'            添加结果为：{results}')
+
+
 # 请求url 杭州市项目库，返回数据（列表）
 def askUrl(pageNo, pageSize, projectStatus, isRegister, govOrgIds):
     global r
@@ -80,6 +121,7 @@ def askUrl(pageNo, pageSize, projectStatus, isRegister, govOrgIds):
         'projectName': '',
         'govOrgIds': govOrgIds
     }
+
     # 请求异常判断
     try:
         r = requests.post(url, json=data, headers=headers)
@@ -117,11 +159,21 @@ def xunhuan(pageNo_s, totalPage=100000):  # 定义totalPage初始变量，足够
             time.sleep(random.randint(0, 10)*0.1)
     return list_all
 
+# 查询未对接项目
+def caxun():
+    db = pymysql.connect(host=host, port=port, user=user, passwd=pw, db=db_name)
+    cur = db.cursor()
+    n = cur.execute(f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM `hz-xs-ybb-project` where appid not in (Select pushAppid FROM `hz-xs-configlist`)')
+    results = cur.fetchall()
+    db.commit()
+    cur.close()
+    db.close()
+    return results
 
 # 自定义列表，写入mysql
 def InsertData(TableName, list_all):
     # 将当前时间添加到需要写入的字典中
-    if TableName == '`hz-xs-ybb-project`':
+    if TableName == '`hz-xs-ybb-project`'or TableName == '`test3`':
         list = [
             'appId',
             'projectId',
