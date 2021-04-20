@@ -6,46 +6,50 @@ import sqlite3
 from sqlite封装 import get_db_conn, close_db_conn
 from 项目报备 import main1
 db_file1 = 'hzsmz.db'
+i = 1
 m = 1
 n = 66  # 页码
 j = 100  # 每页大小
-token = '9f125e31c42345c78c9d909daba8c1a4'
+token = 'ad57088e1f414c9a9b2e0091eed60eb9'
 
 
 def main():
-    init_db(db_file1)
-    for i in range(m, n):
-        list1 = askUrl(i, j)
-        # print(list1)
-        list3 = uplist(list1, db_file1)
-        if not list3:
-            print("数据库新增数据0条")
-        else:
-            row = insert_mult_data(list3, db_file1)
-            print("数据库新增数据%d条\n" % row)
-        # print("开始执行项目报备数据")
-    # main1(token)
+    askUrl(i, j)
+    # init_db(db_file1)
+    # for i in range(m, n):
+    #     list1 = askUrl(i, j)
+    #     # print(list1)
+    #     list3 = uplist(list1, db_file1)
+    #     if not list3:
+    #         print("数据库新增数据0条")
+    #     else:
+    #         row = insert_mult_data(list3, db_file1)
+    #         print("数据库新增数据%d条\n" % row)
+    #     # print("开始执行项目报备数据")
+    # # main1(token)
 
 
 # 请求 项目库
 def askUrl(i, j):
     url = 'http://115.233.209.232:9000/api/project/findProject/%d/%d' % (i, j)
+    url = 'http://115.233.209.232:9000/api/project/findProject'
     headers = {
         'Content-Type': 'application/json; charset=utf-8',
         'x-access-token': token}
-    data = {}  # 空字典
+    data = {"builderLicenseNumber":"2021"}  # 空字典
     # data = json.dumps(data)   #  序列化成json
     r = requests.post(url=url, json=data, headers=headers)
     r.encoding = 'utf-8'
     # print(r.json())
     # print("post执行状态码：%s" % r.json()['code'])
-    print("页码：%s" % r.json()['data']['pageNum'])
+    # print("页码：%s" % r.json()['data']['pageNum'])
     # print("每页大小：%s" % r.json()['data']['pageSize'])
     # print("总共%s页" % r.json()['data']['totalPage'])
     # print("项目总数总数：%s\n" % r.json()['data']['total'])
     data = r.json()['data']
-    list1 = data['list']
-    return list1
+    # list1 = data['list']
+    print(data)
+    # return list1
 
 
 # 查询数据

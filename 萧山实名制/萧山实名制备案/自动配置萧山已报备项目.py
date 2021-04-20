@@ -17,7 +17,7 @@ TableName_hzbb = '`hz-xs-ybb-project`'
 TableName_xsconfigList = '`hz-xs-configList`'
 
 # 请求基础配置
-token = '73b9c41a3a694221bb44bab46f7dfe1e'
+token = 'f160ca40e52e453bb72a3c18b4dc6315'
 headers = {
     'Content-Type': 'application/json; charset=utf-8',
     'x-access-token': token}
@@ -30,11 +30,17 @@ isRegister = '0'  # 是否报备
 govOrgIds = [14]  # 监管机构，14：萧山区
 
 
+# 自动配置萧山已报备项目
 def main():
+    # 查询萧山已报备项目并写入数据库
     xsbb()
+    # 查询萧山推送已配置项目并写入数据库
     xspz()
+    # 查询两个数据库，获取未对接项目
     results_tuple = caxun()
+    # 根据项目名称，尝试配置密钥
     chanshi_addConfig(results_tuple)
+
 
 # 根据数据库查询结果，尝试配置
 def chanshi_addConfig(results_tuple):
@@ -48,7 +54,6 @@ def chanshi_addConfig(results_tuple):
         addConfig(projectName, appId, secretKey)
 
 
-
 # 查询萧山配置，并写入数据
 def xspz():
     print('1、正在发起循环请求数据')
@@ -59,6 +64,7 @@ def xspz():
     r = InsertData(TableName_xsconfigList, list_all)
 
     print(f'3、数据写入完毕！\n')
+
 
 def xsbb():
     # 请求所有数据
@@ -86,6 +92,7 @@ def askUrl_configList():
     data['data']['list'] = '省略原数据'
     print(f'3、请求结果如下：\n{data}')
     return r.json()['data']['list']
+
 
 # 添加项目推送配置（萧山至杭州）
 def addConfig(projectName, appId, secretKey):
@@ -141,6 +148,7 @@ def askUrl(pageNo, pageSize, projectStatus, isRegister, govOrgIds):
         print(f'    返回结果:共{total}条数据，共{totalPage}页\n')
         return list1, totalPage
 
+
 # 循环请求，返回list_all
 def xunhuan(pageNo_s, totalPage=100000):  # 定义totalPage初始变量，足够大就行
     list_all = []  # 定义空列表，用于接受查询数据并返回
@@ -156,24 +164,27 @@ def xunhuan(pageNo_s, totalPage=100000):  # 定义totalPage初始变量，足够
         else:
             list_all += list1
             pageNo_s += 1
-            time.sleep(random.randint(0, 10)*0.1)
+            time.sleep(random.randint(0, 10) * 0.1)
     return list_all
+
 
 # 查询未对接项目
 def caxun():
     db = pymysql.connect(host=host, port=port, user=user, passwd=pw, db=db_name)
     cur = db.cursor()
-    n = cur.execute(f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM `hz-xs-ybb-project` where appid not in (Select pushAppid FROM `hz-xs-configlist`)')
+    n = cur.execute(
+        f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM `hz-xs-ybb-project` where appid not in (Select pushAppid FROM `hz-xs-configlist`)')
     results = cur.fetchall()
     db.commit()
     cur.close()
     db.close()
     return results
 
+
 # 自定义列表，写入mysql
 def InsertData(TableName, list_all):
     # 将当前时间添加到需要写入的字典中
-    if TableName == '`hz-xs-ybb-project`'or TableName == '`test3`':
+    if TableName == '`hz-xs-ybb-project`' or TableName == '`test3`':
         list = [
             'appId',
             'projectId',
@@ -192,7 +203,7 @@ def InsertData(TableName, list_all):
             'addtime'
         ]
         kk = 'projectId'
-    elif TableName == '`hz-xs-configList`' or TableName == '`test2`' :
+    elif TableName == '`hz-xs-configList`' or TableName == '`test2`':
         list = [
             'myProjectCode',
             'projectName',
@@ -212,11 +223,11 @@ def InsertData(TableName, list_all):
         f = 0
         for dic in list_all:
             dic['addtime'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        # 根据projectId查找数据库是否存在！
+            # 根据projectId查找数据库是否存在！
             keyword = dic[kk]
-        # print(f'select {kk} from {TableName} where {kk} = {keyword}')
+            # print(f'select {kk} from {TableName} where {kk} = {keyword}')
             n = cur.execute(f'select {kk} from {TableName} where {kk} = \'{keyword}\'')
-        # 数据库不存在，构建写入数据库的列名称、行内容字段
+            # 数据库不存在，构建写入数据库的列名称、行内容字段
             if n == 0:
                 COLstr = ''  # 列的字段
                 ROWstr = ''  # 行字段
