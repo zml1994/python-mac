@@ -12,9 +12,10 @@ port = 3306
 user = 'zml'
 pw = 'Aa123456'
 db_name = 'xssmz'
-TableName_hzbb = '`hz(xs)-ybb-project`'
-# TableName_hzbb = '`test3`'
-TableName_xsconfigList = '`tsconfiglist-xs-to-hz`'
+
+TableName_gxlqg = '`gxl-qg`'
+TableName_gxlhz = '`gxl-hz`'
+TableName_hzconfigList = '`tsconfiglist-hz-to-qg`'
 
 # 请求基础配置
 token = 'f160ca40e52e453bb72a3c18b4dc6315'
@@ -25,27 +26,99 @@ pageNo_s = 1  # 起始页
 pageSize = 100
 
 # 请求url参数配置
-projectStatus = ''  # 项目状态
+projectStatus = ''  # 项目状态  003：在建
 isRegister = '0'  # 是否报备  0：所有  1：未报备
-govOrgIds = [14]  # 监管机构，14：萧山区
+govOrgIds = [14]  # 监管机构，14：萧山区  []:无监管机构
+govOrgIds = []  # 监管机构，
 
 
-# 自动配置萧山已报备项目
+
+list_orgId = [
+    {"levelCode": "000000000",
+     "orgBusinessId": 2,
+     "orgId": 5,
+     "orgName": "市本级",
+     },
+    {"levelCode": "000000001",
+     "orgBusinessId": 3,
+     "orgId": 6,
+     "orgName": "上城区",
+     },
+    {"levelCode": "000000002",
+     "orgBusinessId": 4,
+     "orgId": 7,
+     "orgName": "下城区",
+     },
+    {"levelCode": "000000003",
+     "orgBusinessId": 5,
+     "orgId": 8,
+     "orgName": "江干区",
+     },
+    {"levelCode": "000000004",
+     "orgBusinessId": 6,
+     "orgId": 9,
+     "orgName": "西湖区",
+     },
+    {"levelCode": "000000005",
+     "orgBusinessId": 7,
+     "orgId": 10,
+     "orgName": "拱墅区",
+     },
+    {"levelCode": "000000006",
+     "orgBusinessId": 8,
+     "orgId": 11,
+     "orgName": "滨江区",
+     },
+    {"levelCode": "000000009",
+     "orgBusinessId": 11,
+     "orgId": 14,
+     "orgName": "萧山区",
+     },
+    {"levelCode": "000000010",
+     "orgBusinessId": 12,
+     "orgId": 15,
+     "orgName": "余杭区",
+     },
+    {"levelCode": "000000011",
+     "orgBusinessId": 13,
+     "orgId": 16,
+     "orgName": "富阳区",
+     },
+    {"levelCode": "000000012",
+     "orgBusinessId": 14,
+     "orgId": 17,
+     "orgName": "桐庐县",
+     },
+    {"levelCode": "000000013",
+     "orgBusinessId": 15,
+     "orgId": 18,
+     "orgName": "淳安县",
+     },
+    {"levelCode": "000000014",
+     "orgBusinessId": 16,
+     "orgId": 19,
+     "orgName": "建德市",
+     },
+    {"levelCode": "000000015",
+     "orgBusinessId": 17,
+     "orgId": 20,
+     "orgName": "临安区",
+     },
+    {"levelCode": "000000016",
+     "orgBusinessId": 18,
+     "orgId": 21,
+     "orgName": "钱塘新区",
+     },
+    {"levelCode": "000000017",
+     "orgBusinessId": 19,
+     "orgId": 15760,
+     "orgName": "西湖风景名胜区",
+     }
+]  # 杭州市监管机构id
+
+
 def main():
-
-    results_tuple = caxun()
-    chanshi_addConfig(results_tuple)
-    # xstohzzdpz()
-
-def xstohzzdpz():
-    # 查询萧山已报备项目并写入数据库
-    xsbb()
-    # 查询萧山推送已配置项目并写入数据库
-    xspz()
-    # 查询两个数据库，获取未对接项目
-    results_tuple = caxun()
-    # 根据项目名称，尝试配置密钥
-    chanshi_addConfig(results_tuple)
+    return
 
 
 # 根据数据库查询结果，尝试配置
@@ -132,7 +205,8 @@ def askUrl(pageNo, pageSize, projectStatus, isRegister, govOrgIds):
         'projectStatus': projectStatus,
         'isRegister': isRegister,
         'projectName': '',
-        'govOrgIds': govOrgIds
+        'govOrgIds': govOrgIds,
+        "builderLicenseNumber": "2021"
     }
 
     # 请求异常判断
@@ -163,6 +237,7 @@ def xunhuan(pageNo_s, totalPage=100000):  # 定义totalPage初始变量，足够
     while pageNo_s <= totalPage:
         # 发起请求，返回list数据及总共多少页
         list1, totalPage = askUrl(pageNo_s, pageSize, projectStatus, isRegister, govOrgIds)
+        # totalPage = 5
         # 如果返回结果是401，则停止
         if list1 == 401:
             print('token失效，请更新token！！')
@@ -179,14 +254,11 @@ def caxun():
     db = pymysql.connect(host=host, port=port, user=user, passwd=pw, db=db_name)
     cur = db.cursor()
     n = cur.execute(
-        f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM {TableName_hzbb} where appid not in (Select pushAppid FROM {TableName_xsconfigList})')
-    print(f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM {TableName_hzbb} where appid not in (Select pushAppid FROM {TableName_xsconfigList})')
+        f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM `hz-xs-ybb-project` where appid not in (Select pushAppid FROM `hz-xs-configlist`)')
     results = cur.fetchall()
     db.commit()
     cur.close()
     db.close()
-    print(results)
-    print(len(results))
     return results
 
 
@@ -224,12 +296,26 @@ def InsertData(TableName, list_all):
             'addtime'
         ]
         kk = 'pushProjectCode'
-    # 对pymysql进行异常判断
+    elif TableName == '`gxl-qg`':
+        list = [
+        ]
+        kk = ''
+    elif TableName == '`gxl-qg`':
+        list = [
+        ]
+        kk = ''
+    elif TableName == '`tsconfiglist-hz-to-qg`':
+        list = [
+        ]
+        kk = ''
+# 对pymysql进行异常判断
     try:
+        # 连接数据库
         db = pymysql.connect(host=host, port=port, user=user, passwd=pw, db=db_name)
         cur = db.cursor()
-        t = 0
-        f = 0
+        t = 0 # 计数：新增
+        f = 0 # 计数：已存在
+        # 对数据列表进行循环构建INSERT语句
         for dic in list_all:
             dic['addtime'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             # 根据projectId查找数据库是否存在！
@@ -256,13 +342,14 @@ def InsertData(TableName, list_all):
             else:
                 f += 1
                 # print(f'f={f}')
-        print(f'新增{t}条数据，{f}条数据已存在！')
+        print(f'新增{t}条数据，{f}条数据已存在！')  # 添加结果输出
         db.commit()
         cur.close()
         db.close()
     except pymysql.Error as e:
         print("Mysql Error %d: %s" % (e.args[0], e.args[1]))
         print(f'执行的sql语句： INSERT INTO {TableName}({COLstr[:-1]}) VALUES ({ROWstr[:-1]})')
+
 
 
 if __name__ == "__main__":  # 当程序执行时
