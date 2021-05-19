@@ -17,12 +17,32 @@ TableName_hzbb = '`hz(xs)-ybb-project`'
 TableName_xsconfigList = '`tsconfiglist-xs-to-hz`'
 
 # 请求基础配置
-token = 'f160ca40e52e453bb72a3c18b4dc6315'
+token = '109b12692e834949b448b3968f2f4b46'
 headers = {
     'Content-Type': 'application/json; charset=utf-8',
     'x-access-token': token}
 pageNo_s = 1  # 起始页
 pageSize = 100
+
+def get_token1():
+    print('正在获取token！！')
+    url = f'http://47.110.228.86:8081/api/login'
+    data = {'username': 'superadmin',
+            'password': 'Aa123456'}
+    try:
+        r = requests.post(url, data=data)
+    except HTTPError as e:
+        print(f'        请求出错,原因是{e.reason}')
+    r.encoding = 'utf-8'
+    results = r.json()['message']
+    # results = r.json()
+    print(f'            添加结果为：{results}')
+    return r.json()['data']['authValue']
+
+token1 = get_token1()
+headers1 = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'x-access-token': token1}
 
 # 请求url参数配置
 projectStatus = ''  # 项目状态
@@ -33,15 +53,16 @@ govOrgIds = [14]  # 监管机构，14：萧山区
 # 自动配置萧山已报备项目
 def main():
 
-    results_tuple = caxun()
-    chanshi_addConfig(results_tuple)
-    # xstohzzdpz()
+
+    # results_tuple = caxun()
+    # chanshi_addConfig(results_tuple)
+    xstohzzdpz()
 
 def xstohzzdpz():
     # 查询萧山已报备项目并写入数据库
-    xsbb()
+    # xsbb()
     # 查询萧山推送已配置项目并写入数据库
-    xspz()
+    # xspz()
     # 查询两个数据库，获取未对接项目
     results_tuple = caxun()
     # 根据项目名称，尝试配置密钥
@@ -56,7 +77,7 @@ def chanshi_addConfig(results_tuple):
         projectName = i[0]
         appId = i[1]
         secretKey = i[2]
-        print(f'    正在尝试配置项目{projectName}，该项目的添加时间为：{i[3]}')
+        print(f'    该项目的添加时间为：{i[3]}，正在尝试配置项目{projectName}')
         addConfig(projectName, appId, secretKey)
 
 
@@ -87,7 +108,7 @@ def xsbb():
 def askUrl_configList():
     url = 'http://47.110.228.86:8081/api/push/config/1/10000/configList?platformName=%E6%9D%AD%E5%B7%9E%E5%B9%B3%E5%8F%B0'
     try:
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=headers1)
     except HTTPError as e:
         print(e.reason)
     r.encoding = 'utf-8'
@@ -104,24 +125,26 @@ def askUrl_configList():
 def addConfig(projectName, appId, secretKey):
     url = f'http://47.110.228.86:8081/api/push/config/addConfig'
     data = {
-        'platformName': '杭州平台',
+        'platformName': '杭州f平台',
         'platformKey': 'hangzhou',
         'pushUrl': 'http://115.233.209.232:9089/open.api',
         'pushAppId': appId,
         'pushProjectCode': appId,
         'pushSecurityKey': secretKey,
-        'myProjectName': projectName}
+        'myProjectName': projectName,
+        'myProjectCode': ''
+    }
     # print(data)
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        'x-access-token': token}
+    # print(headers1)
     try:
-        r = requests.post(url, data=data, headers=headers)
+        r = requests.post(url, data=data, headers=headers1)
     except HTTPError as e:
         print(f'        请求出错,原因是{e.reason}')
     r.encoding = 'utf-8'
     results = r.json()['message']
+    results = r.json()
     print(f'            添加结果为：{results}')
+
 
 
 # 请求url 杭州市项目库，返回数据（列表）
@@ -180,19 +203,20 @@ def caxun():
     cur = db.cursor()
     n = cur.execute(
         f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM {TableName_hzbb} where appid not in (Select pushAppid FROM {TableName_xsconfigList})')
-    print(f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM {TableName_hzbb} where appid not in (Select pushAppid FROM {TableName_xsconfigList})')
+    # print(f'Select `projectName`, `appId`, `secretKey`, `addtime` FROM {TableName_hzbb} where appid not in (Select pushAppid FROM {TableName_xsconfigList})')
     results = cur.fetchall()
     db.commit()
     cur.close()
     db.close()
-    print(results)
-    print(len(results))
+    # print(results)
+    # print(len(results))
     return results
 
 
 # 自定义列表，写入mysql
 def InsertData(TableName, list_all):
     # 将当前时间添加到需要写入的字典中
+    # print(TableName)
     if TableName == '`hz(xs)-ybb-project`':
         list = [
             'appId',
@@ -212,7 +236,7 @@ def InsertData(TableName, list_all):
             'addtime'
         ]
         kk = 'projectId'
-    elif TableName == '`tsconfigList-xs-to-hz`':
+    elif TableName == '`tsconfiglist-xs-to-hz`':
         list = [
             'myProjectCode',
             'projectName',
@@ -233,6 +257,7 @@ def InsertData(TableName, list_all):
         for dic in list_all:
             dic['addtime'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             # 根据projectId查找数据库是否存在！
+            # print(kk)
             keyword = dic[kk]
             # print(f'select {kk} from {TableName} where {kk} = {keyword}')
             n = cur.execute(f'select {kk} from {TableName} where {kk} = \'{keyword}\'')
